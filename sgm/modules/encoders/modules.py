@@ -958,3 +958,27 @@ class GaussianEncoder(Encoder, AbstractEmbModel):
         if self.flatten_output:
             z = rearrange(z, "b c h w -> b (h w ) c")
         return log, z
+
+class FakeTextEmbedder(AbstractEmbModel):
+
+    def __init__(
+        self,
+        seq_len,
+        hidden_size,
+        device="cuda",
+        **kwargs
+    ):
+        super().__init__()
+        self.seq_len = seq_len
+        self.hidden_size = hidden_size
+        self.device = device
+
+    def freeze(self):
+        pass
+
+    @autocast
+    def forward(self, text):
+        return torch.zeros(1, self.seq_len, self.hidden_size, device=self.device), torch.zeros(1, self.hidden_size, device=self.device)
+
+    def encode(self, text):
+        return self(text)
