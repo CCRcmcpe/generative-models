@@ -47,7 +47,11 @@ class DiffusionEngine(pl.LightningModule):
         self.optimizer_config = default(
             optimizer_config, {"target": "torch.optim.AdamW"}
         )
-        model = instantiate_from_config(network_config)
+
+        from accelerate import init_empty_weights
+        with init_empty_weights():
+            model = instantiate_from_config(network_config)
+            
         self.model = get_obj_from_str(default(network_wrapper, OPENAIUNETWRAPPER))(
             model, compile_model=compile_model
         )
